@@ -242,6 +242,34 @@ void predict(const std::vector<std::string>& args) {
   exit(0);
 }
 
+void predictWord(const std::vector<std::string>& args) {
+  if (args.size() < 4 || args.size() > 6) {
+    printPredictUsage();
+    exit(EXIT_FAILURE);
+  }
+  int32_t k = 1;
+  real threshold = 0.0;
+  if (args.size() > 4) {
+    k = std::stoi(args[4]);
+    if (args.size() == 6) {
+      threshold = std::stof(args[5]);
+    }
+  }
+
+  bool printProb = true;
+  FastText fasttext;
+  fasttext.loadModel(std::string(args[2]));
+
+  std::ifstream ifs;
+  std::string in = args[3];
+  std::cout << args[3] << std::endl;
+  std::vector<std::pair<real, std::string>> predictions;
+  fasttext.predictLine(in, predictions, k, threshold);
+  printPredictions(predictions, printProb, false);
+
+  exit(0);
+}
+
 void printWordVectors(const std::vector<std::string> args) {
   if (args.size() != 3) {
     printPrintWordVectorsUsage();
@@ -425,6 +453,8 @@ int main(int argc, char** argv) {
     analogies(args);
   } else if (command == "predict" || command == "predict-prob") {
     predict(args);
+  } else if (command == "predict-word") {
+    predictWord(args);
   } else if (command == "dump") {
     dump(args);
   } else {

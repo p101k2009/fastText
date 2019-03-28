@@ -8,7 +8,7 @@
 
 CXX = c++
 CXXFLAGS = -pthread -std=c++0x -march=native
-OBJS = args.o matrix.o dictionary.o loss.o productquantizer.o densematrix.o quantmatrix.o vector.o model.o utils.o meter.o fasttext.o
+OBJS = args.o matrix.o dictionary.o loss.o productquantizer.o densematrix.o quantmatrix.o vector.o model.o utils.o meter.o fasttext.o fasttextJni.o
 INCLUDES = -I.
 
 opt: CXXFLAGS += -O3 -funroll-loops
@@ -56,8 +56,14 @@ meter.o: src/meter.cc src/meter.h
 fasttext.o: src/fasttext.cc src/*.h
 	$(CXX) $(CXXFLAGS) -c src/fasttext.cc
 
+fasttextJni.o: src/fasttextJni.cc src/*.h
+	$(CXX) $(CXXFLAGS) -c src/fasttextJni.cc
+
 fasttext: $(OBJS) src/fasttext.cc
 	$(CXX) $(CXXFLAGS) $(OBJS) src/main.cc -o fasttext
+
+fasttextlib: src/*.cc
+	$(CXX) src/*.cc -fPIC -shared $(CXXFLAGS) -o libfasttext.so
 
 clean:
 	rm -rf *.o *.gcno *.gcda fasttext

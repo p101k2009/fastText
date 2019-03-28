@@ -231,6 +231,35 @@ bool Dictionary::readWord(std::istream& in, std::string& word) const {
   return !word.empty();
 }
 
+bool Dictionary::readWord(std::string& in, std::string& word) const {
+  int c;
+  word.clear();
+  const char* input = in.c_str();
+  while (*input) {
+  	c = input[0];
+  	if (c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '\v' ||
+            c == '\f' || c == '\0') {
+		if (word.empty()) {
+			input++;
+			continue;
+		  } else {
+			std::string newstr = input;
+			in = newstr;
+			return true;
+		  }
+    }
+  	input++;
+    word.push_back(c);
+  }
+
+  std::string newstr = input;
+  in = newstr;
+  if (word.empty()){
+    word += EOS;
+  }
+  return !word.empty();
+}
+
 void Dictionary::readFromFile(std::istream& in) {
   std::string word;
   int64_t minThreshold = 1;
@@ -402,6 +431,38 @@ int32_t Dictionary::getLine(
       break;
     }
   }
+  addWordNgrams(words, word_hashes, args_->wordNgrams);
+  return ntokens;
+}
+
+int32_t Dictionary::getLine(
+    std::string in,
+    std::vector<int32_t>& words,
+    std::vector<int32_t>& labels) const {
+  std::vector<int32_t> word_hashes;
+  std::string token;
+  int32_t ntokens = 0;
+  std::string& input = in;
+  words.clear();
+  labels.clear();
+
+  while (readWord(input, token)) {
+    uint32_t h = hash(token);
+    int32_t wid = getId(token, h);
+    entry_type type = wid < 0 ? getType(token) : getType(wid);
+
+    ntokens++;
+    if (type == entry_type::word) {
+      addSubwords(words, token, wid);
+      word_hashes.push_back(h);
+    } else if (type == entry_type::label && wid >= 0) {
+      labels.push_back(wid - nwords_);
+    }
+    if (token == EOS) {
+      break;
+    }
+  }
+
   addWordNgrams(words, word_hashes, args_->wordNgrams);
   return ntokens;
 }
