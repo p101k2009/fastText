@@ -10,10 +10,18 @@ extern "C" {
 /*
  * Class:     com_nuance_FastText
  * Method:    predictLine
- * Signature: (Ljava/lang/String;Ljava/lang/String;IF)Ljava/util/List;
+ * Signature: (Ljava/lang/String;JIF)Ljava/lang/String;
  */
-JNIEXPORT jobject JNICALL Java_com_nuance_FastText_predictLine
-  (JNIEnv *, jobject, jstring, jstring, jint, jfloat);
+JNIEXPORT jstring JNICALL Java_com_nuance_FastText_predictLine
+  (JNIEnv *, jobject, jstring, jlong, jint, jfloat);
+
+/*
+ * Class:     com_nuance_FastText
+ * Method:    loadModel
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nuance_FastText_loadModel
+  (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
 }
